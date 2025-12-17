@@ -1,0 +1,1292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Issue Tracker — Customer Portal</title>
+  <style>
+    :root{
+      --bg0:#070A12;
+      --bg1:#0B1020;
+      --stroke: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --muted2: rgba(255,255,255,.52);
+      --good: #2ecc71;
+      --bad: #ff5a6a;
+      --warn: #ffcc66;
+      --accent: #7c5cff;
+      --accent2:#2dd4bf;
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --shadow2: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html, body { height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(124,92,255,.20), transparent 60%),
+        radial-gradient(900px 600px at 90% 20%, rgba(45,212,191,.16), transparent 55%),
+        radial-gradient(900px 700px at 60% 110%, rgba(255,204,102,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+    }
+
+    a{ color:inherit; text-decoration:none; }
+    button, input, select, textarea{ font:inherit; }
+    .container{
+      width:min(1100px, 92vw);
+      margin: 0 auto;
+      padding: 22px 0 60px;
+    }
+
+    /* Header */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding: 14px 16px;
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow2);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 14px;
+      z-index: 10;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width: 0;
+    }
+    .logo{
+      width:42px;
+      height:42px;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(255,255,255,.35), transparent 55%),
+        linear-gradient(135deg, rgba(124,92,255,.95), rgba(45,212,191,.85));
+      box-shadow: 0 12px 30px rgba(124,92,255,.22);
+      border: 1px solid rgba(255,255,255,.22);
+      flex: 0 0 auto;
+    }
+    .brand h1{
+      margin:0;
+      font-size: 14px;
+      letter-spacing:.3px;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand .sub{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .actions{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+    }
+    .chip{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.05);
+      color: var(--muted);
+      font-size: 12px;
+      max-width: 100%;
+    }
+    .chip b{ color: var(--text); font-weight: 600; }
+    .btn{
+      appearance:none;
+      border: 1px solid var(--stroke);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      padding: 10px 12px;
+      border-radius: 14px;
+      cursor:pointer;
+      transition: transform .08s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.2);
+      user-select:none;
+    }
+    .btn:hover{ background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{
+      border-color: rgba(124,92,255,.45);
+      background: linear-gradient(135deg, rgba(124,92,255,.32), rgba(45,212,191,.12));
+    }
+    .btn.ghost{ background: transparent; box-shadow:none; }
+
+    /* Big CTA login button (center) */
+    .cta-wrap{
+      margin-top: 14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .btn.cta{
+      padding: 14px 18px;
+      border-radius: 16px;
+      border-color: rgba(124,92,255,.6);
+      background:
+        radial-gradient(140px 80px at 20% 20%, rgba(255,255,255,.14), transparent 60%),
+        linear-gradient(135deg, rgba(124,92,255,.45), rgba(45,212,191,.20));
+      box-shadow:
+        0 16px 40px rgba(124,92,255,.18),
+        0 16px 50px rgba(0,0,0,.35);
+      letter-spacing:.2px;
+    }
+    .btn.cta:hover{
+      border-color: rgba(124,92,255,.75);
+      box-shadow:
+        0 18px 50px rgba(124,92,255,.22),
+        0 18px 60px rgba(0,0,0,.38);
+    }
+
+    /* Layout */
+    .grid{
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:18px;
+      margin-top: 18px;
+    }
+    @media (max-width: 920px){
+      .grid{ grid-template-columns: 1fr; }
+      .topbar{ position: relative; top: 0; }
+    }
+
+    .card{
+      border: 1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    .card-header{
+      padding: 16px 16px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .card-title{ margin:0; font-size: 15px; letter-spacing:.2px; }
+    .card-desc{
+      margin:6px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .card-body{ padding: 16px; }
+
+    /* Form */
+    .form{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 720px){ .form{ grid-template-columns: 1fr; } }
+    .field{ display:flex; flex-direction:column; gap:6px; }
+    .label{
+      font-size: 12px;
+      color: var(--muted);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .label span.req{ font-size: 11px; color: var(--muted2); font-family: var(--mono); }
+    .control{
+      width:100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      padding: 11px 12px;
+      outline: none;
+      transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+    .control::placeholder{ color: rgba(255,255,255,.35); }
+    .control:focus{
+      border-color: rgba(124,92,255,.55);
+      background: rgba(0,0,0,.26);
+      box-shadow: 0 0 0 4px rgba(124,92,255,.12);
+    }
+    textarea.control{ min-height: 110px; resize: vertical; }
+
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top: 14px;
+    }
+    .hint{
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .status-msg{
+      margin-top: 12px;
+      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      display:none;
+    }
+    .status-msg.ok{
+      display:block;
+      border-color: rgba(46,204,113,.35);
+      background: rgba(46,204,113,.10);
+      color: rgba(220,255,235,.95);
+    }
+    .status-msg.err{
+      display:block;
+      border-color: rgba(255,90,106,.35);
+      background: rgba(255,90,106,.10);
+      color: rgba(255,220,224,.95);
+    }
+
+    /* Tickets */
+    .tickets{ display:flex; flex-direction:column; gap:10px; margin-top: 10px; }
+    .ticket{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      border-radius: var(--radius2);
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .ticket-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .ticket-title{ margin:0; font-size: 13px; letter-spacing:.2px; line-height: 1.35; }
+    .ticket-meta{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    .pill{
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      color: var(--muted);
+      white-space:nowrap;
+    }
+    .pill.good{ border-color: rgba(46,204,113,.35); color: rgba(220,255,235,.95); background: rgba(46,204,113,.10); }
+    .pill.warn{ border-color: rgba(255,204,102,.35); color: rgba(255,242,215,.95); background: rgba(255,204,102,.10); }
+    .pill.bad{ border-color: rgba(255,90,106,.35); color: rgba(255,220,224,.95); background: rgba(255,90,106,.10); }
+    .pill.accent{ border-color: rgba(124,92,255,.40); color: rgba(235,230,255,.95); background: rgba(124,92,255,.12); }
+
+    .ticket-desc{
+      margin:0;
+      font-size: 13px;
+      color: rgba(255,255,255,.78);
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .ticket-small{
+      font-size: 12px;
+      color: var(--muted2);
+      font-family: var(--mono);
+    }
+    .empty{
+      padding: 14px;
+      border-radius: var(--radius2);
+      border: 1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.14);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* Ticket actions + editor */
+    .actions-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .btn.small{
+      padding: 8px 10px;
+      border-radius: 12px;
+      box-shadow:none;
+    }
+    .editor{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: 16px;
+      padding: 12px;
+      display:none;
+      gap:10px;
+      flex-direction:column;
+    }
+    .editor.open{ display:flex; }
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    @media (max-width: 720px){ .split{ grid-template-columns: 1fr; } }
+
+    /* Conversation */
+    .thread{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+      border-radius: 16px;
+      padding: 10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .msg{
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+    }
+    .msg.staff{
+      border-color: rgba(124,92,255,.28);
+      background: rgba(124,92,255,.10);
+    }
+    .msg.customer{
+      border-color: rgba(45,212,191,.28);
+      background: rgba(45,212,191,.08);
+    }
+    .msg-head{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      margin-bottom: 6px;
+    }
+    .msg-who{
+      font-size: 12px;
+      color: rgba(255,255,255,.85);
+      font-weight: 600;
+      letter-spacing:.2px;
+    }
+    .msg-when{
+      font-size: 11px;
+      color: var(--muted2);
+      font-family: var(--mono);
+    }
+    .msg-body{
+      font-size: 13px;
+      color: rgba(255,255,255,.82);
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.45;
+    }
+
+    /* Modal */
+    .overlay{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.58);
+      backdrop-filter: blur(10px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      z-index: 50;
+    }
+    .overlay.open{ display:flex; }
+    .modal{
+      width: min(720px, 96vw);
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .modal-head{
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .modal-head h2{ margin:0; font-size: 14px; letter-spacing:.2px; }
+    .modal-body{
+      padding: 16px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+    }
+    @media (max-width: 820px){ .modal-body{ grid-template-columns: 1fr; } }
+    .cred-box{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .cred-box h3{ margin:0 0 8px; font-size: 13px; color: var(--text); }
+    .cred{
+      font-family: var(--mono);
+      font-size: 12px;
+      color: rgba(255,255,255,.82);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .cred code{
+      font-family: var(--mono);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      padding: 2px 6px;
+      border-radius: 10px;
+      display:inline-block;
+    }
+    .login-form{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      border-radius: 16px;
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .x{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 8px 10px;
+      cursor:pointer;
+    }
+    .hide{ display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar" role="banner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div style="min-width:0">
+          <h1>Issue Tracker — Customer Portal</h1>
+          <div class="sub">Domain & Hosting Support • Submit and manage your tickets</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="chip" id="sessionChip" aria-live="polite">
+          <span>Session:</span>
+          <b id="sessionLabel">Not logged in</b>
+        </div>
+        <button class="btn ghost" id="loginBtnTop" type="button" aria-haspopup="dialog" aria-controls="loginOverlay">
+          🔐 Login
+        </button>
+        <button class="btn ghost hide" id="logoutBtn" type="button">
+          ↩ Logout
+        </button>
+      </div>
+    </header>
+
+    <main class="grid" role="main">
+      <section class="card" aria-label="Create a new ticket">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Create a Support Ticket</h2>
+            <p class="card-desc">
+              Share a brief description. A support agent will respond as soon as possible.
+            </p>
+          </div>
+          <div class="pill accent" title="MVP">Public Module</div>
+        </div>
+
+        <div class="card-body">
+          <div id="loginGate">
+            <div class="empty">
+              <b>Login required.</b><br>
+              This portal is available to existing customers (domain/hosting). Please login to submit or manage tickets.
+            </div>
+            <div class="cta-wrap">
+              <button class="btn cta" id="loginBtnCenter" type="button" aria-haspopup="dialog" aria-controls="loginOverlay">
+                🔐 Login to Continue
+              </button>
+            </div>
+            <p class="hint" style="text-align:center; margin: 10px 0 0;">
+              Demo accounts: <b>user-1</b>, <b>user-2</b>, <b>user-3</b> (password: <b>0000</b>)
+            </p>
+          </div>
+
+          <form id="ticketForm" class="hide" novalidate>
+            <div class="form">
+              <div class="field">
+                <div class="label">Full Name <span class="req">required</span></div>
+                <input class="control" id="name" name="name" placeholder="e.g., Alex Johnson" autocomplete="name" />
+              </div>
+
+              <div class="field">
+                <div class="label">Email <span class="req">required</span></div>
+                <input class="control" id="email" name="email" placeholder="e.g., alex@example.com" autocomplete="email" />
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <div class="label">Subject <span class="req">required</span></div>
+                <input class="control" id="subject" name="subject" placeholder="e.g., DNS issue / SSL renewal / downtime" />
+              </div>
+
+              <div class="field" style="grid-column: 1 / -1;">
+                <div class="label">Description <span class="req">required</span></div>
+                <textarea class="control" id="description" name="description" placeholder="Describe the issue. Include your domain if relevant."></textarea>
+              </div>
+
+              <div class="field">
+                <div class="label">Urgency <span class="req">required</span></div>
+                <select class="control" id="urgency" name="urgency">
+                  <option value="">Select urgency</option>
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <div class="label">Auto Priority</div>
+                <input class="control" id="autoPriority" value="High urgency → High priority" disabled />
+              </div>
+            </div>
+
+            <div class="row">
+              <button class="btn primary" type="submit" id="submitBtn">➕ Submit Ticket</button>
+              <div class="hint">Tip: Use <b>High</b> only when the issue blocks your service.</div>
+            </div>
+
+            <div id="formMsg" class="status-msg" role="status" aria-live="polite"></div>
+          </form>
+        </div>
+      </section>
+
+      <section class="card" aria-label="Tickets">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title" id="rightTitle">Ticket Preview</h2>
+            <p class="card-desc" id="rightDesc">
+              Latest ticket submitted by any customer (preview only).
+            </p>
+          </div>
+          <div class="pill" id="ticketCountPill">0</div>
+        </div>
+
+        <div class="card-body">
+          <div class="tickets" id="tickets"></div>
+          <div class="empty" id="ticketsEmpty">No tickets to show.</div>
+          <div class="status-msg" id="ticketActionMsg" role="status" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+    <div class="modal">
+      <div class="modal-head">
+        <h2 id="loginTitle">Login</h2>
+        <button class="x" id="closeLogin" type="button" aria-label="Close">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="cred-box">
+          <h3>Demo Credentials</h3>
+          <div class="cred" aria-label="Credentials list">
+            <div>Account: <code>user-1</code> Password: <code>0000</code></div>
+            <div>Account: <code>user-2</code> Password: <code>0000</code></div>
+            <div>Account: <code>user-3</code> Password: <code>0000</code></div>
+          </div>
+          <p class="hint" style="margin:10px 0 0;">
+            Each user can manage their own tickets and reply to staff messages.
+          </p>
+        </div>
+
+        <form class="login-form" id="loginForm" novalidate>
+          <div class="field">
+            <div class="label">Username <span class="req">required</span></div>
+            <input class="control" id="loginUser" placeholder="user-1" autocomplete="username" />
+          </div>
+          <div class="field">
+            <div class="label">Password <span class="req">required</span></div>
+            <input class="control" id="loginPass" placeholder="0000" type="password" autocomplete="current-password" />
+          </div>
+
+          <div class="row">
+            <button class="btn primary" type="submit">✅ Sign in</button>
+            <button class="btn" type="button" data-fill="user-1">Fill user-1</button>
+            <button class="btn" type="button" data-fill="user-2">Fill user-2</button>
+            <button class="btn" type="button" data-fill="user-3">Fill user-3</button>
+          </div>
+
+          <div id="loginMsg" class="status-msg" role="status" aria-live="polite"></div>
+          <div class="hint">
+            Note: This is a simple demo login gate (front-end only). You can replace it later with Firebase Authentication.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, doc, updateDoc,
+      serverTimestamp, query, orderBy, onSnapshot, arrayUnion
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+
+
+    /***********************************************************************
+     * ✅ PASTE YOUR FIREBASE CONFIG SNIPPET HERE (ONLY THIS PART)
+     *
+     * Paste EXACTLY what Firebase gives you (example):
+     *
+     * // Your web app's Firebase configuration
+     * const firebaseConfig = { ... };
+     *
+     * // Initialize Firebase
+     * const app = initializeApp(firebaseConfig);
+     *
+     ***********************************************************************/
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCjXjoxwzs5aq2aV5308Akjs2xia-r-XxE",
+  authDomain: "final-project-75dde.firebaseapp.com",
+  projectId: "final-project-75dde",
+  storageBucket: "final-project-75dde.firebasestorage.app",
+  messagingSenderId: "750259875804",
+  appId: "1:750259875804:web:4d7a2be29d6bf834b3e919"
+};
+  const app = initializeApp(firebaseConfig);
+
+    /***********************************************************************
+     * After you paste your snippet above, DO NOT edit below unless needed.
+     ***********************************************************************/
+
+    const _app = (typeof app !== "undefined") ? app : null;
+    if (!_app) {
+      console.error("Firebase app is not initialized. Paste your config snippet in the marked section.");
+      alert("Firebase is not initialized. Paste your Firebase config snippet into the marked section in the code.");
+      throw new Error("Firebase app not initialized");
+    }
+
+    const db = getFirestore(_app);
+
+    // Shared collection name (must match staff.html & insights.html)
+    const TICKETS = collection(db, "tickets");
+
+    // Utilities
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    const escapeHtml = (s) => String(s)
+      .replaceAll("&","&amp;").replaceAll("<","&lt;")
+      .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+
+    function formatDate(iso){
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return String(iso || "");
+      return d.toLocaleString(undefined, { year:"numeric", month:"short", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+    }
+    function isValidEmail(email){
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim());
+    }
+    function toISO(v){
+      if (!v) return "";
+      if (typeof v === "string") return v;
+      if (v?.toDate) return v.toDate().toISOString();
+      return String(v);
+    }
+
+    // Firestore-backed Ticket Store
+    class TicketStore {
+      constructor(){
+        this.listeners = new Set();
+        this.unsub = null;
+        this.cache = [];
+      }
+
+      subscribe(fn){
+        this.listeners.add(fn);
+
+        if (!this.unsub){
+          const q = query(TICKETS, orderBy("createdAt", "desc"));
+          this.unsub = onSnapshot(q, (snap) => {
+            this.cache = snap.docs.map(d => {
+              const data = d.data();
+              return {
+                id: d.id,
+                ...data,
+                createdAt: toISO(data.createdAt),
+                updatedAt: toISO(data.updatedAt),
+                messages: (data.messages || []).map(m => ({ ...m, at: toISO(m.at) }))
+              };
+            });
+            for (const cb of this.listeners) cb(this.cache);
+          }, (err) => {
+            console.error("Firestore listen error:", err);
+          });
+        }
+
+        fn(this.cache);
+        return () => this.listeners.delete(fn);
+      }
+
+      getAllTickets(){
+        return this.cache.slice().sort((a,b) => (b.createdAt||"").localeCompare(a.createdAt||""));
+      }
+
+      getTicketsByUser(username){
+        return this.cache
+          .filter(t => t.ownerUser === username)
+          .sort((a,b) => (b.createdAt||"").localeCompare(a.createdAt||""));
+      }
+
+      async createTicket(ticket){
+        const payload = {
+          ownerUser: ticket.ownerUser,
+          name: ticket.name,
+          email: ticket.email,
+          subject: ticket.subject,
+          description: ticket.description,
+          urgency: ticket.urgency,
+          status: "New",
+          isHighPriority: !!ticket.isHighPriority,
+          messages: [
+            { from: "customer", text: ticket.description, at: serverTimestamp() }
+          ],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+        await addDoc(TICKETS, payload);
+      }
+
+      async updateTicket(ticketId, patch){
+        const ref = doc(db, "tickets", ticketId);
+        await updateDoc(ref, { ...patch, updatedAt: serverTimestamp() });
+      }
+
+      async addCustomerReply(ticketId, text){
+        const ref = doc(db, "tickets", ticketId);
+        await updateDoc(ref, {
+          messages: arrayUnion({ from:"customer", text, at: serverTimestamp() }),
+          updatedAt: serverTimestamp()
+        });
+      }
+    }
+
+    const store = new TicketStore();
+
+    // Session (demo login gate)
+    const SESSION_KEY = "issue_tracker_public_session_v1";
+    const USERS = new Set(["user-1","user-2","user-3"]);
+    const PASSWORD = "0000";
+    const state = { user: null };
+
+    function loadSession(){
+      try{
+        const raw = localStorage.getItem(SESSION_KEY);
+        if (!raw) return null;
+        const s = JSON.parse(raw);
+        if (s && USERS.has(s.user)) return s.user;
+        return null;
+      }catch(_){ return null; }
+    }
+    function saveSession(user){ localStorage.setItem(SESSION_KEY, JSON.stringify({ user })); }
+    function clearSession(){ localStorage.removeItem(SESSION_KEY); }
+
+    // DOM refs
+    const sessionLabel = $("#sessionLabel");
+    const loginOverlay = $("#loginOverlay");
+    const loginBtnTop = $("#loginBtnTop");
+    const loginBtnCenter = $("#loginBtnCenter");
+    const closeLogin = $("#closeLogin");
+    const loginForm = $("#loginForm");
+    const loginUser = $("#loginUser");
+    const loginPass = $("#loginPass");
+    const loginMsg = $("#loginMsg");
+    const logoutBtn = $("#logoutBtn");
+
+    const loginGate = $("#loginGate");
+    const ticketForm = $("#ticketForm");
+    const formMsg = $("#formMsg");
+
+    const nameEl = $("#name");
+    const emailEl = $("#email");
+    const subjectEl = $("#subject");
+    const descEl = $("#description");
+    const urgencyEl = $("#urgency");
+    const submitBtn = $("#submitBtn");
+
+    const ticketsEl = $("#tickets");
+    const ticketsEmpty = $("#ticketsEmpty");
+    const ticketCountPill = $("#ticketCountPill");
+    const rightTitle = $("#rightTitle");
+    const rightDesc = $("#rightDesc");
+    const ticketActionMsg = $("#ticketActionMsg");
+
+    function showFormMsg(type, text){
+      formMsg.textContent = text;
+      formMsg.className = "status-msg " + (type === "ok" ? "ok" : "err");
+    }
+    function clearFormMsg(){
+      formMsg.textContent = "";
+      formMsg.className = "status-msg";
+    }
+    function showLoginMsg(type, text){
+      loginMsg.textContent = text;
+      loginMsg.className = "status-msg " + (type === "ok" ? "ok" : type === "err" ? "err" : "");
+      if (!type) loginMsg.className = "status-msg";
+    }
+    function showTicketActionMsg(type, text){
+      ticketActionMsg.textContent = text;
+      ticketActionMsg.className = "status-msg " + (type === "ok" ? "ok" : "err");
+      if (!text) ticketActionMsg.className = "status-msg";
+    }
+
+    function openLogin(){
+      showLoginMsg("", "");
+      loginOverlay.classList.add("open");
+      setTimeout(() => loginUser.focus(), 0);
+    }
+    function closeLoginModal(){ loginOverlay.classList.remove("open"); }
+
+    function hydrateFormFromProfile(user){
+      const profiles = {
+        "user-1": { name:"User One", email:"user1@example.com" },
+        "user-2": { name:"User Two", email:"user2@example.com" },
+        "user-3": { name:"User Three", email:"user3@example.com" }
+      };
+      const p = profiles[user] || {};
+      nameEl.value = p.name || "";
+      emailEl.value = p.email || "";
+    }
+
+    function statusPill(status){
+      const s = String(status || "New");
+      if (s === "Completed") return `<span class="pill good">COMPLETED</span>`;
+      if (s === "In Progress") return `<span class="pill warn">IN PROGRESS</span>`;
+      return `<span class="pill accent">NEW</span>`;
+    }
+    function urgencyPill(u){
+      const s = String(u || "");
+      if (s === "High") return `<span class="pill bad">URGENCY: HIGH</span>`;
+      if (s === "Medium") return `<span class="pill warn">URGENCY: MEDIUM</span>`;
+      return `<span class="pill">URGENCY: LOW</span>`;
+    }
+
+    function setSessionUI(){
+      const loggedIn = !!state.user;
+
+      sessionLabel.textContent = loggedIn ? state.user : "Not logged in";
+      loginBtnTop.classList.toggle("hide", loggedIn);
+      logoutBtn.classList.toggle("hide", !loggedIn);
+
+      loginGate.classList.toggle("hide", loggedIn);
+      ticketForm.classList.toggle("hide", !loggedIn);
+
+      rightTitle.textContent = loggedIn ? "My Tickets" : "Ticket Preview";
+      rightDesc.textContent = loggedIn
+        ? "Edit your tickets and reply to staff messages."
+        : "Latest ticket submitted by any customer (preview only).";
+
+      showTicketActionMsg("", "");
+      if (loggedIn) hydrateFormFromProfile(state.user);
+
+      renderTickets();
+    }
+
+    function renderTickets(){
+      ticketsEl.innerHTML = "";
+      ticketsEmpty.classList.add("hide");
+
+      if (!state.user){
+        const all = store.getAllTickets();
+        ticketCountPill.textContent = all.length ? "1" : "0";
+
+        if (!all.length){
+          ticketsEmpty.classList.remove("hide");
+          ticketsEmpty.textContent = "No tickets in the database yet. Login and submit one to create a preview.";
+          return;
+        }
+
+        ticketsEl.appendChild(renderTicketCard(all[0], { mode: "preview" }));
+        return;
+      }
+
+      const mine = store.getTicketsByUser(state.user);
+      ticketCountPill.textContent = String(mine.length);
+
+      if (!mine.length){
+        ticketsEmpty.classList.remove("hide");
+        ticketsEmpty.textContent = "No tickets yet. Submit a ticket using the form.";
+        return;
+      }
+
+      for (const t of mine){
+        ticketsEl.appendChild(renderTicketCard(t, { mode: "owner" }));
+      }
+    }
+
+    function renderTicketCard(ticket, { mode }){
+      const t = ticket;
+      const el = document.createElement("div");
+      el.className = "ticket";
+
+      const priorityPill = t.isHighPriority
+        ? `<span class="pill bad" title="High priority">PRIORITY</span>`
+        : `<span class="pill" title="Normal priority">NORMAL</span>`;
+
+      const title = mode === "preview"
+        ? `${escapeHtml(t.subject || "(No subject)")} <span class="pill" title="Preview">(Preview)</span>`
+        : escapeHtml(t.subject || "(No subject)");
+
+      const idDisplay = (mode === "preview")
+        ? `<span class="ticket-small" title="Ticket ID (masked)">t_••••</span>`
+        : `<span class="ticket-small" title="Ticket ID">${escapeHtml(t.id)}</span>`;
+
+      const maskedOwner = mode === "preview"
+        ? `<span class="pill" title="Submitted by">Customer: <span style="font-family:var(--mono)">user-•</span></span>`
+        : "";
+
+      const canEdit = (mode === "owner") && (t.status !== "Completed");
+
+      const messages = Array.isArray(t.messages) ? t.messages : [];
+      const threadHtml = messages.length
+        ? messages.map(m => `
+            <div class="msg ${m.from === "staff" ? "staff" : "customer"}">
+              <div class="msg-head">
+                <div class="msg-who">${m.from === "staff" ? "Staff" : "You"}</div>
+                <div class="msg-when">${escapeHtml(formatDate(m.at))}</div>
+              </div>
+              <div class="msg-body">${escapeHtml(m.text || "")}</div>
+            </div>
+          `).join("")
+        : `<div class="empty">No messages yet.</div>`;
+
+      el.innerHTML = `
+        <div class="ticket-top">
+          <div style="min-width:0">
+            <p class="ticket-title">${title}</p>
+            <div class="ticket-meta">
+              ${statusPill(t.status)}
+              ${urgencyPill(t.urgency)}
+              ${priorityPill}
+              ${maskedOwner}
+            </div>
+          </div>
+          ${idDisplay}
+        </div>
+
+        <p class="ticket-desc">${escapeHtml(t.description || "")}</p>
+
+        <div class="ticket-meta">
+          <span class="pill" title="Created at">Created: ${escapeHtml(formatDate(t.createdAt))}</span>
+          <span class="pill" title="Updated at">Updated: ${escapeHtml(formatDate(t.updatedAt))}</span>
+        </div>
+
+        <div class="thread" aria-label="Conversation thread">
+          ${threadHtml}
+        </div>
+
+        ${
+          mode === "owner"
+          ? `
+            <div class="actions-row">
+              <button class="btn small ${canEdit ? "" : "ghost"}" type="button" data-action="toggle-edit" data-id="${escapeHtml(t.id)}" ${canEdit ? "" : "disabled"}>
+                ✏️ Edit
+              </button>
+              <button class="btn small primary" type="button" data-action="toggle-reply" data-id="${escapeHtml(t.id)}">
+                💬 Reply to Staff
+              </button>
+            </div>
+
+            <div class="editor" data-editor="edit" data-id="${escapeHtml(t.id)}">
+              <div class="split">
+                <div class="field">
+                  <div class="label">Subject <span class="req">required</span></div>
+                  <input class="control" data-edit="subject" value="${escapeHtml(t.subject || "")}" />
+                </div>
+                <div class="field">
+                  <div class="label">Urgency <span class="req">required</span></div>
+                  <select class="control" data-edit="urgency">
+                    <option value="">Select urgency</option>
+                    <option value="Low" ${t.urgency==="Low" ? "selected" : ""}>Low</option>
+                    <option value="Medium" ${t.urgency==="Medium" ? "selected" : ""}>Medium</option>
+                    <option value="High" ${t.urgency==="High" ? "selected" : ""}>High</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field">
+                <div class="label">Description <span class="req">required</span></div>
+                <textarea class="control" data-edit="description">${escapeHtml(t.description || "")}</textarea>
+              </div>
+              <div class="row">
+                <button class="btn small primary" type="button" data-action="save-edit" data-id="${escapeHtml(t.id)}">✅ Save changes</button>
+                <button class="btn small" type="button" data-action="cancel-edit" data-id="${escapeHtml(t.id)}">↩ Cancel</button>
+                <span class="hint">Edits will be visible to staff in real time.</span>
+              </div>
+            </div>
+
+            <div class="editor" data-editor="reply" data-id="${escapeHtml(t.id)}">
+              <div class="field">
+                <div class="label">Your message <span class="req">required</span></div>
+                <textarea class="control" data-reply="text" placeholder="Write your reply to the support agent..."></textarea>
+              </div>
+              <div class="row">
+                <button class="btn small primary" type="button" data-action="send-reply" data-id="${escapeHtml(t.id)}">📨 Send reply</button>
+                <button class="btn small" type="button" data-action="cancel-reply" data-id="${escapeHtml(t.id)}">↩ Cancel</button>
+              </div>
+            </div>
+          `
+          : `<div class="hint">This is a preview. Login to submit and manage tickets.</div>`
+        }
+      `;
+      return el;
+    }
+
+    function closeEditorsForTicket(ticketId){
+      $$(`.editor[data-id="${CSS.escape(ticketId)}"]`).forEach(e => e.classList.remove("open"));
+    }
+    function toggleEditor(ticketId, type){
+      const target = $(`.editor[data-editor="${type}"][data-id="${CSS.escape(ticketId)}"]`);
+      if (!target) return;
+      const isOpen = target.classList.contains("open");
+      closeEditorsForTicket(ticketId);
+      if (!isOpen) target.classList.add("open");
+    }
+
+    function validateEditFields(subject, desc, urgency){
+      const errors = [];
+      if (!subject.trim()) errors.push("Subject is required.");
+      if (!desc.trim()) errors.push("Description is required.");
+      if (!urgency) errors.push("Urgency is required.");
+      return errors;
+    }
+
+    async function saveEdit(ticketId){
+      try{
+        const card = $(`.ticket button[data-id="${CSS.escape(ticketId)}"]`)?.closest(".ticket");
+        if (!card) return;
+
+        const subject = card.querySelector('[data-edit="subject"]').value;
+        const urgency = card.querySelector('[data-edit="urgency"]').value;
+        const description = card.querySelector('[data-edit="description"]').value;
+
+        const errs = validateEditFields(subject, description, urgency);
+        if (errs.length){
+          showTicketActionMsg("err", errs.join(" "));
+          return;
+        }
+
+        await store.updateTicket(ticketId, {
+          subject,
+          urgency,
+          description,
+          isHighPriority: (urgency === "High")
+        });
+
+        closeEditorsForTicket(ticketId);
+        showTicketActionMsg("ok", "Ticket updated successfully.");
+      } catch (e){
+        showTicketActionMsg("err", "Update failed. " + (e?.message || ""));
+      }
+    }
+
+    async function sendReply(ticketId){
+      try{
+        const card = $(`.ticket button[data-id="${CSS.escape(ticketId)}"]`)?.closest(".ticket");
+        if (!card) return;
+
+        const textArea = card.querySelector('[data-reply="text"]');
+        const text = (textArea?.value || "").trim();
+        if (!text){
+          showTicketActionMsg("err", "Reply message cannot be empty.");
+          return;
+        }
+
+        await store.addCustomerReply(ticketId, text);
+
+        if (textArea) textArea.value = "";
+        closeEditorsForTicket(ticketId);
+
+        showTicketActionMsg("ok", "Reply sent successfully.");
+      } catch (e){
+        showTicketActionMsg("err", "Reply failed. " + (e?.message || ""));
+      }
+    }
+
+    function showLoginMsg(type, text){
+      loginMsg.textContent = text;
+      loginMsg.className = "status-msg " + (type === "ok" ? "ok" : type === "err" ? "err" : "");
+      if (!type) loginMsg.className = "status-msg";
+    }
+
+    function doLogin(user, pass){
+      const u = String(user || "").trim();
+      const p = String(pass || "").trim();
+      if (!USERS.has(u)){
+        showLoginMsg("err", "Invalid username. Use user-1, user-2, or user-3.");
+        return false;
+      }
+      if (p !== PASSWORD){
+        showLoginMsg("err", "Incorrect password. Hint: the password is 0000.");
+        return false;
+      }
+      state.user = u;
+      saveSession(u);
+      showLoginMsg("ok", "Signed in successfully.");
+      setSessionUI();
+      closeLoginModal();
+      return true;
+    }
+
+    function doLogout(){
+      state.user = null;
+      clearSession();
+      setSessionUI();
+    }
+
+    async function onSubmitTicket(e){
+      e.preventDefault();
+      clearFormMsg();
+
+      if (!state.user){
+        showFormMsg("err", "Please login first.");
+        return;
+      }
+
+      const name = nameEl.value.trim();
+      const email = emailEl.value.trim();
+      const subject = subjectEl.value.trim();
+      const description = descEl.value.trim();
+      const urgency = urgencyEl.value;
+
+      const errors = [];
+      if (!name) errors.push("Full name is required.");
+      if (!email) errors.push("Email is required.");
+      if (email && !isValidEmail(email)) errors.push("Please enter a valid email address.");
+      if (!subject) errors.push("Subject is required.");
+      if (!description) errors.push("Description is required.");
+      if (!urgency) errors.push("Urgency selection is required.");
+
+      if (errors.length){
+        showFormMsg("err", errors.join(" "));
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "⏳ Submitting...";
+
+      try{
+        await store.createTicket({
+          ownerUser: state.user,
+          name, email, subject, description,
+          urgency,
+          isHighPriority: (urgency === "High")
+        });
+
+        showFormMsg("ok", "Your message has been delivered successfully. We will get back to you as soon as possible.");
+
+        subjectEl.value = "";
+        descEl.value = "";
+        urgencyEl.value = "";
+      }catch(err){
+        const msg = err?.message ? err.message : "Unknown error";
+        showFormMsg("err", "Submission failed. " + msg);
+      }finally{
+        submitBtn.disabled = false;
+        submitBtn.textContent = "➕ Submit Ticket";
+      }
+    }
+
+    // Events
+    loginBtnTop.addEventListener("click", openLogin);
+    loginBtnCenter.addEventListener("click", openLogin);
+    closeLogin.addEventListener("click", closeLoginModal);
+    loginOverlay.addEventListener("click", (e) => { if (e.target === loginOverlay) closeLoginModal(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && loginOverlay.classList.contains("open")) closeLoginModal(); });
+
+    logoutBtn.addEventListener("click", doLogout);
+
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      doLogin(loginUser.value, loginPass.value);
+    });
+
+    loginForm.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-fill]");
+      if (!btn) return;
+      const u = btn.getAttribute("data-fill");
+      loginUser.value = u;
+      loginPass.value = "0000";
+      loginUser.focus();
+    });
+
+    ticketForm.addEventListener("submit", onSubmitTicket);
+
+    ticketsEl.addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+
+      const action = btn.getAttribute("data-action");
+      const id = btn.getAttribute("data-id");
+      if (!id) return;
+
+      showTicketActionMsg("", "");
+
+      if (action === "toggle-edit") toggleEditor(id, "edit");
+      if (action === "toggle-reply") toggleEditor(id, "reply");
+      if (action === "cancel-edit") closeEditorsForTicket(id);
+      if (action === "cancel-reply") closeEditorsForTicket(id);
+      if (action === "save-edit") saveEdit(id);
+      if (action === "send-reply") sendReply(id);
+    });
+
+    // Init
+    store.subscribe(() => renderTickets());
+    (function init(){
+      state.user = loadSession();
+      setSessionUI();
+    })();
+  </script>
+</body>
+</html>
